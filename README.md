@@ -1,24 +1,29 @@
-# README
+# Connect 4 API ![Travis CI Build](https://travis-ci.org/logitron/sl-connect4-api.svg?branch=master)
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+> Rails 5 API for Connect 4 Application 
 
-Things you may want to cover:
+<div align="center">
+  <img src="https://github.com/logitron/sl-connect4-api/blob/master/connect4.jpg" alt="Connect 4" />
+</div>
+<br />
 
-* Ruby version
+* **Ruby Version**: 2.4.2
+* **Database**: Postgresql
 
-* System dependencies
+## Setup
+```
+// Create Databases
+rake db:create
 
-* Configuration
+// Run Database Migrations
+rake db:migrate
 
-* Database creation
+// Run the Server
+rails s
+```
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## Testing
+```
+// Simply run rake
+rake
+```
