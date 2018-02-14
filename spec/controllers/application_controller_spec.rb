@@ -52,7 +52,7 @@ RSpec.describe ApplicationController, type: :controller do
           get :index
         end
 
-        it 'responds with status not found' do
+        it 'responds with status unauthorized' do
           expect(response.status).to eq(401)
         end
   
