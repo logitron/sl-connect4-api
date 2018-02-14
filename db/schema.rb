@@ -16,20 +16,20 @@ ActiveRecord::Schema.define(version: 20180213121252) do
   enable_extension "plpgsql"
 
   create_table "boards", force: :cascade do |t|
-    t.integer "primary_player_id"
+    t.integer "primary_player_id", null: false
     t.integer "secondary_player_id"
-    t.integer "current_player_id"
+    t.integer "current_player_id", null: false
     t.json "board", default: [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]]
-    t.integer "column_heights", default: [0, 0, 0, 0, 0, 0], array: true
+    t.integer "column_heights", default: [0, 0, 0, 0, 0, 0, 0], array: true
     t.integer "move_count", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "google_id"
-    t.string "email"
-    t.string "name"
+    t.string "google_id", null: false
+    t.string "email", null: false
+    t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["google_id"], name: "index_users_on_google_id", unique: true

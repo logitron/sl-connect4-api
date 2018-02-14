@@ -13,7 +13,7 @@ class CreateBoards < ActiveRecord::Migration[5.1]
         [0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0]
       ]
-      t.integer :column_heights, array: true, default: [0, 0, 0, 0, 0, 0]
+      t.integer :column_heights, array: true, default: [0, 0, 0, 0, 0, 0, 0]
       t.integer :move_count, default: 0
 
       t.timestamps

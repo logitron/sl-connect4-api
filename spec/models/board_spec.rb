@@ -10,7 +10,7 @@ RSpec.describe Board, type: :model do
     subject.primary_player = primary_user
     subject.secondary_player = secondary_user
     subject.current_player = primary_user
-    subject.column_heights = [0, 0, 0, 0, 0, 0]
+    subject.column_heights = [0, 0, 0, 0, 0, 0, 0]
   end
 
   it 'is valid with valid attributes' do
@@ -18,12 +18,12 @@ RSpec.describe Board, type: :model do
   end
 
   it 'is invalid column height' do
-    subject.column_heights = [0, 0, 0, 0, 0, 0, 0]
+    subject.column_heights = [0, 0, 0, 0, 0, 0, 0, 0]
     expect(subject).not_to be_valid
   end
 
   it 'is invalid column height' do
-    subject.column_heights = [0, 0, 0, 0, 0]
+    subject.column_heights = [0, 0, 0, 0, 0, 0]
     expect(subject).not_to be_valid
   end
 
