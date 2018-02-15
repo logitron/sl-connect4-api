@@ -25,9 +25,9 @@ class BoardService
         x = column_index + diagonal_x
         y = row_index + (diagonal_x * diagonal_y)
 
-        while @board.board[x][y] == current_player_token &&
-              x >= 0 && x < MAX_WIDTH &&
-              y >= 0 && y < MAX_HEIGHT do
+        while x >= 0 && x < MAX_WIDTH &&
+              y >= 0 && y < MAX_HEIGHT &&
+              @board.board[x][y] == current_player_token do
           x += diagonal_x
           y += (diagonal_x * diagonal_y)
           surrounding_stone_count += 1
@@ -55,8 +55,10 @@ class BoardService
 
     @board.current_player = (@board.current_player == @board.primary_player) ?
       @board.secondary_player : @board.primary_player
+  end
 
-    @board.save
+  def reset
+    @board.restore_attributes
   end
 
   private

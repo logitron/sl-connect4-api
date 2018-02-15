@@ -148,6 +148,33 @@ RSpec.describe BoardService, type: :service do
     end
   end
 
+  describe '#reset' do
+    let(:original_board) do
+      [
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0]
+      ]
+    end
+
+    before do
+      subject.play 0
+      subject.reset
+    end
+
+    it 'resets the board' do
+      expect(board.board).to eq(original_board)
+    end
+
+    it 'resets the move count' do
+      expect(board.move_count).to eq(0)
+    end
+  end
+
   describe '#move_count' do
     it 'returns the number of moves played' do
       moves = subject.move_count
