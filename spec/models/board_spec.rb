@@ -36,9 +36,4 @@ RSpec.describe Board, type: :model do
     subject.secondary_player = nil
     expect(subject).not_to be_valid
   end
-
-  it 'is invalid current player' do
-    subject.current_player = nil
-    expect(subject).not_to be_valid
-  end
 end

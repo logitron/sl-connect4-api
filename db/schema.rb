@@ -18,7 +18,10 @@ ActiveRecord::Schema.define(version: 20180213121252) do
   create_table "boards", force: :cascade do |t|
     t.integer "primary_player_id", null: false
     t.integer "secondary_player_id"
-    t.integer "current_player_id", null: false
+    t.integer "current_player_id"
+    t.integer "winner_id"
+    t.integer "loser_id"
+    t.boolean "is_game_over", default: false, null: false
     t.json "board", default: [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]]
     t.integer "column_heights", default: [0, 0, 0, 0, 0, 0, 0], array: true
     t.integer "move_count", default: 0
