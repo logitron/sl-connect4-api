@@ -1,6 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe BoardsController, type: :request do
+  let(:auth_command) { double(:auth_command) }
+  let(:current_user) { FactoryBot.create(:user) }
+
   before do
     allow(AuthorizeApiRequest).to receive(:call)
       .and_return(auth_command)
@@ -10,12 +13,7 @@ RSpec.describe BoardsController, type: :request do
   end
 
   describe '#create' do
-    let(:auth_command) { double(:auth_command) }
-    let(:current_user) { FactoryBot.create(:user) }
-
-    before do
-      post '/boards'
-    end
+    before { post '/boards' }
 
     it 'responds with status created' do
       expect(response.status).to eq(201)
@@ -45,6 +43,53 @@ RSpec.describe BoardsController, type: :request do
         [0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0]])
+    end
+  end
+
+  describe '#update' do
+    context 'when user joins a joinable game' do
+      let(:board) do
+        FactoryBot.create(:board,
+          secondary_player: nil,
+          current_player: nil)
+      end
+      let(:board_id) { board.id }
+      let(:secondary_player) { FactoryBot.create(:user) }
+      let(:params) { { secondary_player_id: secondary_player.id } }
+
+      before { put "/boards/#{board_id}", params: params }
+
+      it 'responds with status no content' do
+        expect(response.status).to eq(204)
+      end
+
+      it 'associates user to the board' do
+        board = Board.find(board_id)
+
+        expect(board.secondary_player).to eq(secondary_player)
+        expect(board.current_player).to eq(board.primary_player)
+      end
+    end
+
+    context 'when user joins a non-joinable game' do
+      let(:board) do
+        FactoryBot.create(:board)
+      end
+      let(:board_id) { board.id }
+      let(:third_player) { FactoryBot.create(:user) }
+      let(:params) { { secondary_player_id: third_player.id } }
+
+      before { put "/boards/#{board_id}", params: params }
+
+      it 'responds with status conflict' do
+        expect(response.status).to eq(409)
+      end
+
+      it 'does not associate user to the board' do
+        board = Board.find(board_id)
+
+        expect(board.secondary_player).not_to eq(third_player)
+      end
     end
   end
 end
