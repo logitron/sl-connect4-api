@@ -8,7 +8,6 @@ RSpec.describe Board, type: :model do
 
   before do
     subject.primary_player = primary_user
-    subject.secondary_player = secondary_user
     subject.current_player = primary_user
     subject.column_heights = [0, 0, 0, 0, 0, 0, 0]
   end
@@ -29,11 +28,6 @@ RSpec.describe Board, type: :model do
 
   it 'is invalid primary player' do
     subject.primary_player = nil
-    expect(subject).not_to be_valid
-  end
-
-  it 'is invalid secondary player' do
-    subject.secondary_player = nil
     expect(subject).not_to be_valid
   end
 end
