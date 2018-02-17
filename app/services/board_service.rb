@@ -10,6 +10,10 @@ class BoardService
     @board.column_heights[column_index] < MAX_HEIGHT
   end
 
+  def is_tie_move? column_index
+    @board.move_count == (MAX_WIDTH * MAX_HEIGHT - 1)
+  end
+
   def is_winning_move? column_index
     row_index = @board.column_heights[column_index]
 

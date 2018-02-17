@@ -1,13 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe BoardService, type: :service do
-  let!(:board) { FactoryBot.create(:board, move_count: 0) }
+  let(:board) { FactoryBot.create(:board, move_count: 0) }
 
   subject { described_class.new board }
 
   describe '#is_playable?' do
-    before do
-      board.column_heights = [0, 0, 0, 6, 0, 0, 0]
+    let(:board) do
+      FactoryBot.create(:board,
+        column_heights: [0, 0, 0, 6, 0, 0, 0])
     end
 
     context 'when column height is at max' do
@@ -28,22 +29,19 @@ RSpec.describe BoardService, type: :service do
   describe '#is_winning_move?' do
     context 'when move is a winning move' do
       context 'when horizontal win' do
-        before do
-          board.move_count = 6
-          board.column_heights[0] = 2
-          board.column_heights[1] = 1
-          board.column_heights[2] = 1
-          board.column_heights[5] = 1
-          board.column_heights[6] = 1
-          board.board = [
-            [1, 2, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [2, 0, 0, 0, 0, 0],
-            [2, 0, 0, 0, 0, 0]
-          ]
+        let(:board) do
+          FactoryBot.create(:board,
+            move_count: 6,
+            column_heights: [2, 1, 1, 0, 0, 1, 1],
+            board: [
+              [1, 2, 0, 0, 0, 0],
+              [1, 0, 0, 0, 0, 0],
+              [1, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0],
+              [2, 0, 0, 0, 0, 0],
+              [2, 0, 0, 0, 0, 0]
+            ])
         end
 
         it 'returns true' do
@@ -52,21 +50,19 @@ RSpec.describe BoardService, type: :service do
       end
 
       context 'when vertical win' do
-        before do
-          board.move_count = 6
-          board.column_heights[0] = 3
-          board.column_heights[4] = 1
-          board.column_heights[5] = 1
-          board.column_heights[6] = 1
-          board.board = [
-            [1, 1, 1, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [2, 0, 0, 0, 0, 0],
-            [2, 0, 0, 0, 0, 0],
-            [2, 0, 0, 0, 0, 0]
-          ]
+        let(:board) do
+          FactoryBot.create(:board,
+            move_count: 6,
+            column_heights: [3, 0, 0, 0, 1, 1, 1],
+            board: [
+              [1, 1, 1, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0],
+              [2, 0, 0, 0, 0, 0],
+              [2, 0, 0, 0, 0, 0],
+              [2, 0, 0, 0, 0, 0]
+            ])
         end
 
         it 'returns true' do
@@ -75,22 +71,19 @@ RSpec.describe BoardService, type: :service do
       end
 
       context 'when back-diagonal win' do
-        before do
-          board.move_count = 12
-          board.column_heights[0] = 3
-          board.column_heights[1] = 3
-          board.column_heights[2] = 2
-          board.column_heights[3] = 2
-          board.column_heights[4] = 2
-          board.board = [
-            [2, 2, 2, 0, 0, 0],
-            [2, 2, 1, 0, 0, 0],
-            [2, 1, 0, 0, 0, 0],
-            [1, 1, 0, 0, 0, 0],
-            [1, 1, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0]
-          ]
+        let(:board) do
+          FactoryBot.create(:board,
+            move_count: 12,
+            column_heights: [3, 3, 2, 2, 2, 0, 0],
+            board: [
+              [2, 2, 2, 0, 0, 0],
+              [2, 2, 1, 0, 0, 0],
+              [2, 1, 0, 0, 0, 0],
+              [1, 1, 0, 0, 0, 0],
+              [1, 1, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0]
+            ])
         end
 
         it 'returns true' do
@@ -99,22 +92,19 @@ RSpec.describe BoardService, type: :service do
       end
 
       context 'when forward-diagonal win' do
-        before do
-          board.move_count = 12
-          board.column_heights[0] = 2
-          board.column_heights[1] = 2
-          board.column_heights[2] = 2
-          board.column_heights[3] = 3
-          board.column_heights[4] = 3
-          board.board = [
-            [1, 1, 0, 0, 0, 0],
-            [1, 1, 0, 0, 0, 0],
-            [2, 1, 0, 0, 0, 0],
-            [2, 2, 1, 0, 0, 0],
-            [2, 2, 2, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0]
-          ]
+        let(:board) do
+          FactoryBot.create(:board,
+            move_count: 12,
+            column_heights: [2, 2, 2, 3, 3, 0, 0],
+            board: [
+              [1, 1, 0, 0, 0, 0],
+              [1, 1, 0, 0, 0, 0],
+              [2, 1, 0, 0, 0, 0],
+              [2, 2, 1, 0, 0, 0],
+              [2, 2, 2, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0]
+            ])
         end
 
         it 'returns true' do
@@ -124,26 +114,67 @@ RSpec.describe BoardService, type: :service do
     end
 
     context 'when move is not a winning move' do
-      before do
-        board.move_count = 6
-        board.column_heights[0] = 2
-        board.column_heights[1] = 1
-        board.column_heights[2] = 1
-        board.column_heights[5] = 1
-        board.column_heights[6] = 1
-        board.board = [
-          [1, 2, 0, 0, 0, 0],
-          [1, 0, 0, 0, 0, 0],
-          [1, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0],
-          [2, 0, 0, 0, 0, 0],
-          [2, 0, 0, 0, 0, 0]
-        ]
+      let(:board) do
+        FactoryBot.create(:board,
+          move_count: 6,
+          column_heights: [2, 1, 1, 0, 0, 1, 1],
+          board: [
+            [1, 2, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [2, 0, 0, 0, 0, 0],
+            [2, 0, 0, 0, 0, 0]
+          ])
       end
 
       it 'returns false' do
         expect(subject.is_winning_move? 0).to be false
+      end
+    end
+  end
+
+  describe '#is_tie_move?' do
+    context 'when move results in a tie' do
+      let(:board) do
+        FactoryBot::create(:board,
+          move_count: 41,
+          column_heights: [6, 6, 6, 6, 6, 5, 6],
+          board: [
+            [1, 2, 1, 2, 1, 2],
+            [1, 2, 1, 2, 1, 2],
+            [1, 2, 1, 2, 1, 2],
+            [2, 1, 2, 1, 2, 1],
+            [1, 2, 1, 2, 1, 2],
+            [1, 2, 1, 2, 1, 0],
+            [1, 2, 1, 2, 1, 2]
+          ])
+      end
+  
+      it 'returns true' do
+        expect(subject.is_tie_move? 5).to eq true
+      end
+    end
+    
+    context 'when move does not result in tie' do
+      let(:board) do
+        FactoryBot::create(:board,
+          move_count: 40,
+          column_heights: [6, 6, 6, 5, 6, 5, 6],
+          board: [
+            [1, 2, 1, 2, 1, 2],
+            [1, 2, 1, 2, 1, 2],
+            [1, 2, 1, 2, 1, 2],
+            [2, 1, 2, 1, 2, 0],
+            [1, 2, 1, 2, 1, 2],
+            [1, 2, 1, 2, 1, 0],
+            [1, 2, 1, 2, 1, 2]
+          ])
+      end
+  
+      it 'returns false' do
+        expect(subject.is_tie_move? 3).to eq false
       end
     end
   end
@@ -160,6 +191,7 @@ RSpec.describe BoardService, type: :service do
         [0, 0, 0, 0, 0, 0]
       ]
     end
+    let(:board) { FactoryBot.create(:board, move_count: 0, board: original_board) }
 
     before do
       subject.play 0
