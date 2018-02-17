@@ -19,9 +19,9 @@ RSpec.describe ApplicationController, type: :controller do
         google_id = Faker::Hipster.word
 
         payload = {
-          :sub => google_id,
-          :name => Faker::Hipster.word,
-          :email => Faker::Internet.email
+          'sub' => google_id,
+          'name' => Faker::Hipster.word,
+          'email' => Faker::Internet.email
         }
 
         before do

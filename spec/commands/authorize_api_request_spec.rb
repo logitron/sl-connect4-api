@@ -20,7 +20,7 @@ RSpec.describe AuthorizeApiRequest, type: :command do
       headers = { 'Authorization' => authorization }
 
       context 'when token is valid' do
-        payload = { :sub => google_id, :name => name, :email => email }
+        payload = { 'sub' => google_id, 'name' => name, 'email' => email }
 
         before do
           allow(validator).to receive(:check).with(token, google_client_id).and_return(payload)

@@ -10,7 +10,7 @@ module ApplicationCable
 
     def find_verified_user
       command = AuthorizeApiRequest
-        .call({ 'Authorization': request.params[:access_token] })
+        .call({ 'Authorization' => "Bearer #{request.params[:access_token]}" })
 
       if command.success?
         command.result 

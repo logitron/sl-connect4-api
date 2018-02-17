@@ -15,9 +15,9 @@ class AuthorizeApiRequest
 
   def user
     if payload
-      @user = User.find_or_create_by google_id: payload[:sub] do |u|
-        u.email = payload[:email]
-        u.name = payload[:name]
+      @user = User.find_or_create_by google_id: payload['sub'] do |u|
+        u.email = payload['email']
+        u.name = payload['name']
       end
     end
 
