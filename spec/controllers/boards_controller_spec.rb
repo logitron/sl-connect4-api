@@ -13,7 +13,14 @@ RSpec.describe BoardsController, type: :request do
   end
 
   describe '#create' do
-    before { post '/boards' }
+    before do
+      expect(ActionCable.server).to receive(:broadcast)
+        .with('joinable_games',
+          game: an_instance_of(Board),
+          is_joinable: true)
+
+      post '/boards'
+    end
 
     it 'responds with status created' do
       expect(response.status).to eq(201)
@@ -57,7 +64,14 @@ RSpec.describe BoardsController, type: :request do
       let(:secondary_player) { FactoryBot.create(:user) }
       let(:params) { { secondary_player_id: secondary_player.id } }
 
-      before { put "/boards/#{board_id}", params: params }
+      before do
+        expect(ActionCable.server).to receive(:broadcast)
+          .with('joinable_games',
+            game: board,
+            is_joinable: false)
+
+        put "/boards/#{board_id}", params: params
+      end
 
       it 'responds with status no content' do
         expect(response.status).to eq(204)
@@ -89,6 +103,24 @@ RSpec.describe BoardsController, type: :request do
         board = Board.find(board_id)
 
         expect(board.secondary_player).not_to eq(third_player)
+      end
+    end
+
+    context 'when user tries to join her own game' do
+      let(:board) do
+        FactoryBot.create(:board,
+          primary_player: current_user,
+          secondary_player: nil,
+          current_player: nil)
+      end
+      let(:board_id) { board.id }
+      let(:secondary_player) { board.primary_player }
+      let(:params) { { secondary_player_id: secondary_player.id } }
+
+      before { put "/boards/#{board_id}", params: params }
+
+      it 'responds with status bad request' do
+        expect(response.status).to eq(400)
       end
     end
   end
