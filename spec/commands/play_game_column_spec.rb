@@ -28,8 +28,9 @@ RSpec.describe PlayGameColumn, type: :command do
       it 'broadcasts failure to current player' do
         expect(GamePlayChannel).to receive(:broadcast_to)
           .with(
-            board.current_player,
-            status: :invalid_move,
+            "board_#{board.id}",
+            move_type: :invalid_move,
+            played_by: board.current_player,
             column_index: column_index)
 
         result
@@ -54,14 +55,9 @@ RSpec.describe PlayGameColumn, type: :command do
       it 'broadcasts move to all players' do
         expect(GamePlayChannel).to receive(:broadcast_to)
           .with(
-            board.primary_player,
-            status: :valid_move,
-            column_index: column_index)
-
-        expect(GamePlayChannel).to receive(:broadcast_to)
-          .with(
-            board.secondary_player,
-            status: :valid_move,
+            "board_#{board.id}",
+            move_type: :valid_move,
+            played_by: board.current_player,
             column_index: column_index)
 
         result
@@ -87,16 +83,9 @@ RSpec.describe PlayGameColumn, type: :command do
       it 'broadcasts winning move to all players' do
         expect(GamePlayChannel).to receive(:broadcast_to)
           .with(
-            board.primary_player,
-            status: :winning_move,
-            is_winner: true,
-            column_index: column_index)
-
-        expect(GamePlayChannel).to receive(:broadcast_to)
-          .with(
-            board.secondary_player,
-            status: :winning_move,
-            is_winner: false,
+            "board_#{board.id}",
+            move_type: :winning_move,
+            played_by: board.current_player,
             column_index: column_index)
 
         result
@@ -162,14 +151,9 @@ RSpec.describe PlayGameColumn, type: :command do
       it 'broadcasts tie to all players' do
         expect(GamePlayChannel).to receive(:broadcast_to)
           .with(
-            board.primary_player,
-            status: :tie_move,
-            column_index: column_index)
-
-        expect(GamePlayChannel).to receive(:broadcast_to)
-          .with(
-            board.secondary_player,
-            status: :tie_move,
+            "board_#{board.id}",
+            move_type: :tie_move,
+            played_by: board.current_player,
             column_index: column_index)
 
         result

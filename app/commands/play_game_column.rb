@@ -10,7 +10,7 @@ class PlayGameColumn
     board_service = BoardService.new @board
 
     unless board_service.is_playable? @column_index
-      broadcast_invalid_move
+      broadcast_move :invalid_move
       return errors.add(:invalid_move, 'Invalid Move')
     end
 
@@ -19,16 +19,13 @@ class PlayGameColumn
       @board.loser = not_current_player
       @board.is_game_over = true
 
-      broadcast_winning_move @board.current_player, true
-      broadcast_winning_move not_current_player, false
+      broadcast_move :winning_move
     elsif board_service.is_tie_move? @column_index
       @board.is_game_over = true
 
-      broadcast_tie_move @board.primary_player
-      broadcast_tie_move @board.secondary_player
+      broadcast_move :tie_move
     else
-      broadcast_valid_move @board.primary_player
-      broadcast_valid_move @board.secondary_player
+      broadcast_move :valid_move
     end
 
     board_service.play @column_index
@@ -42,32 +39,11 @@ class PlayGameColumn
         @board.secondary_player : @board.primary_player
   end
 
-  def broadcast_invalid_move
+  def broadcast_move move_type
     GamePlayChannel.broadcast_to(
-        @board.current_player,
-        status: :invalid_move,
+        "board_#{@board.id}",
+        move_type: move_type,
+        played_by: @board.current_player,
         column_index: @column_index)
-  end
-
-  def broadcast_valid_move player
-    GamePlayChannel.broadcast_to(
-      player,
-      status: :valid_move,
-      column_index: @column_index)
-  end
-
-  def broadcast_winning_move player, is_winner
-    GamePlayChannel.broadcast_to(
-      player,
-      status: :winning_move,
-      is_winner: is_winner,
-      column_index: @column_index)
-  end
-
-  def broadcast_tie_move player
-    GamePlayChannel.broadcast_to(
-      player,
-      status: :tie_move,
-      column_index: @column_index)
   end
 end
