@@ -4,10 +4,10 @@ class GamePlayChannel < ApplicationCable::Channel
   end
 
   def receive(data)
-    if data.board_id && data.column_index
-      board = Board.find(data.board_id)
+    if data['board_id'] && data['column_index']
+      board = Board.find(data['board_id'])
 
-      PlayGameColumn.call(board, data.column_index) if
+      PlayGameColumn.call(board, data['column_index']) if
         board.current_player == current_user
     end
   end
