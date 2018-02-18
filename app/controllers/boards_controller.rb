@@ -6,6 +6,11 @@ class BoardsController < ApplicationController
     render json: board, status: :created
   end
 
+  def index
+    joinable_boards = Board.where(index_board_params)
+    render json: joinable_boards, status: :ok
+  end
+
   def update
     board = Board.find(params[:id])
 
@@ -29,5 +34,9 @@ class BoardsController < ApplicationController
       secondary_player: secondary_player,
       current_player: board.primary_player
     }
+  end
+
+  def index_board_params
+    params.permit(:secondary_player)
   end
 end

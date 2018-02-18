@@ -53,6 +53,27 @@ RSpec.describe BoardsController, type: :request do
     end
   end
 
+  describe '#index' do
+    context 'when user requests joinable games' do
+      let(:joinable_games_count) { 7 }
+      let(:unjoinable_games_count) { 11 }
+
+      before do
+        FactoryBot.create_list(:board, joinable_games_count, secondary_player: nil)
+        FactoryBot.create_list(:board, unjoinable_games_count)
+
+        get '/boards', params: { secondary_player: nil }
+      end
+
+      it 'returns joinable games' do
+        response_body = JSON.parse(response.body)
+        
+        expect(response_body.size).to eq(joinable_games_count)
+        expect(response_body.first['secondary_player_id']).to be_nil
+      end
+    end
+  end
+
   describe '#update' do
     context 'when user joins a joinable game' do
       let(:board) do
