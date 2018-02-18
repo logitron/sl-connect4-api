@@ -1,6 +1,6 @@
 class BoardsController < ApplicationController
   def create
-    board = Board.create!(primary_player: @current_user)
+    board = Board.create!(primary_player: @current_user, is_opponent_ai: params[:is_opponent_ai])
     ActionCable.server.broadcast 'joinable_games', game: board, is_joinable: true
 
     render json: board, status: :created
@@ -14,7 +14,7 @@ class BoardsController < ApplicationController
   def update
     board = Board.find(params[:id])
 
-    if board.primary_player == @current_user
+    if board.primary_player == @current_user || board.is_opponent_ai
       render status: :bad_request
     elsif board.secondary_player
       render status: :conflict
@@ -37,6 +37,6 @@ class BoardsController < ApplicationController
   end
 
   def index_board_params
-    params.permit(:secondary_player)
+    params.permit(:secondary_player, :is_opponent_ai)
   end
 end

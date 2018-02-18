@@ -6,6 +6,7 @@ class CreateBoards < ActiveRecord::Migration[5.1]
       t.integer :current_player_id, null: true
       t.integer :winner_id, null: true
       t.integer :loser_id, null: true
+      t.boolean :is_opponent_ai, null: false, default: false
       t.boolean :is_game_over, null: false, default: false
       t.json :board, default: [
         [0, 0, 0, 0, 0, 0],

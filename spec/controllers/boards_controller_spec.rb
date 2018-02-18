@@ -13,56 +13,93 @@ RSpec.describe BoardsController, type: :request do
   end
 
   describe '#create' do
-    before do
-      expect(ActionCable.server).to receive(:broadcast)
-        .with('joinable_games',
-          game: an_instance_of(Board),
-          is_joinable: true)
+    context 'when user creates game against another user' do
+      before do
+        expect(ActionCable.server).to receive(:broadcast)
+          .with('joinable_games',
+            game: an_instance_of(Board),
+            is_joinable: true)
 
-      post '/boards'
+        post '/boards', params: { is_opponent_ai: false }
+      end
+
+      it 'responds with status created' do
+        expect(response.status).to eq(201)
+      end
+
+      it 'creates new board' do
+        expect(Board.count).to eq(1)
+      end
+
+      it 'responds with created board' do
+        board = Board.first
+        response_body = JSON.parse(response.body)
+
+        expect(response_body['primary_player_id']).to eq(board.primary_player.id)
+        expect(response_body['secondary_player_id']).to be_nil
+        expect(response_body['current_player_id']).to be_nil
+        expect(response_body['winner_id']).to be_nil
+        expect(response_body['loser_id']).to be_nil
+        expect(response_body['is_opponent_ai']).to be false
+        expect(response_body['is_game_over']).to be false
+        expect(response_body['column_heights']).to eq([0, 0, 0, 0, 0, 0, 0])
+        expect(response_body['move_count']).to eq(0)
+        expect(response_body['board']).to eq([
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0]])
+      end
     end
 
-    it 'responds with status created' do
-      expect(response.status).to eq(201)
-    end
+    context 'when user creates game against AI' do
+      before do
+        expect(ActionCable.server).to receive(:broadcast)
+          .with('joinable_games',
+            game: an_instance_of(Board),
+            is_joinable: true)
 
-    it 'creates new board' do
-      expect(Board.count).to eq(1)
-    end
+        post '/boards', params: { is_opponent_ai: true }
+      end
 
-    it 'responds with created board' do
-      board = Board.first
-      response_body = JSON.parse(response.body)
+      it 'responds with created board' do
+        board = Board.first
+        response_body = JSON.parse(response.body)
 
-      expect(response_body['primary_player_id']).to eq(board.primary_player.id)
-      expect(response_body['secondary_player_id']).to be_nil
-      expect(response_body['current_player_id']).to be_nil
-      expect(response_body['winner_id']).to be_nil
-      expect(response_body['loser_id']).to be_nil
-      expect(response_body['is_game_over']).to be false
-      expect(response_body['column_heights']).to eq([0, 0, 0, 0, 0, 0, 0])
-      expect(response_body['move_count']).to eq(0)
-      expect(response_body['board']).to eq([
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0]])
+        expect(response_body['primary_player_id']).to eq(board.primary_player.id)
+        expect(response_body['secondary_player_id']).to be_nil
+        expect(response_body['current_player_id']).to be_nil
+        expect(response_body['winner_id']).to be_nil
+        expect(response_body['loser_id']).to be_nil
+        expect(response_body['is_opponent_ai']).to be true
+        expect(response_body['is_game_over']).to be false
+        expect(response_body['column_heights']).to eq([0, 0, 0, 0, 0, 0, 0])
+        expect(response_body['move_count']).to eq(0)
+        expect(response_body['board']).to eq([
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0]])
+      end
     end
   end
 
   describe '#index' do
     context 'when user requests joinable games' do
       let(:joinable_games_count) { 7 }
-      let(:unjoinable_games_count) { 11 }
 
       before do
         FactoryBot.create_list(:board, joinable_games_count, secondary_player: nil)
-        FactoryBot.create_list(:board, unjoinable_games_count)
+        FactoryBot.create_list(:board, Faker::Number.digit.to_i, secondary_player: nil, is_opponent_ai: true)
+        FactoryBot.create_list(:board, Faker::Number.digit.to_i)
 
-        get '/boards', params: { secondary_player: nil }
+        get '/boards', params: { secondary_player: nil, is_opponent_ai: false }
       end
 
       it 'returns joinable games' do
@@ -106,7 +143,7 @@ RSpec.describe BoardsController, type: :request do
       end
     end
 
-    context 'when user joins a non-joinable game' do
+    context 'when user tries to join game with opponent already' do
       let(:board) do
         FactoryBot.create(:board)
       end
@@ -133,6 +170,24 @@ RSpec.describe BoardsController, type: :request do
           primary_player: current_user,
           secondary_player: nil,
           current_player: nil)
+      end
+      let(:board_id) { board.id }
+      let(:secondary_player) { board.primary_player }
+      let(:params) { { secondary_player_id: secondary_player.id } }
+
+      before { put "/boards/#{board_id}", params: params }
+
+      it 'responds with status bad request' do
+        expect(response.status).to eq(400)
+      end
+    end
+
+    context 'when user tries to join game against ai' do
+      let(:board) do
+        FactoryBot.create(:board,
+          secondary_player: nil,
+          current_player: nil,
+          is_opponent_ai: true)
       end
       let(:board_id) { board.id }
       let(:secondary_player) { board.primary_player }

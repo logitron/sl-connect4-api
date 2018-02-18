@@ -21,6 +21,7 @@ ActiveRecord::Schema.define(version: 20180213121252) do
     t.integer "current_player_id"
     t.integer "winner_id"
     t.integer "loser_id"
+    t.boolean "is_opponent_ai", default: false, null: false
     t.boolean "is_game_over", default: false, null: false
     t.json "board", default: [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]]
     t.integer "column_heights", default: [0, 0, 0, 0, 0, 0, 0], array: true
