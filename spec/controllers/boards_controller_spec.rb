@@ -57,7 +57,7 @@ RSpec.describe BoardsController, type: :request do
 
     context 'when user creates game against AI' do
       before do
-        expect(ActionCable.server).to receive(:broadcast)
+        expect(ActionCable.server).not_to receive(:broadcast)
           .with('joinable_games',
             game: an_instance_of(Board),
             is_joinable: true)

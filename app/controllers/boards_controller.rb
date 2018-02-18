@@ -1,7 +1,10 @@
 class BoardsController < ApplicationController
   def create
     board = Board.create!(primary_player: @current_user, is_opponent_ai: params[:is_opponent_ai])
-    ActionCable.server.broadcast 'joinable_games', game: board, is_joinable: true
+
+    ActionCable.server.broadcast 'joinable_games',
+      game: board,
+      is_joinable: true unless board.is_opponent_ai
 
     render json: board, status: :created
   end
