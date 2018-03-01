@@ -1,6 +1,10 @@
 class BoardsController < ApplicationController
   def create
-    board = Board.create!(primary_player: @current_user, is_opponent_ai: params[:is_opponent_ai])
+    current_player = params[:is_opponent_ai] ? @current_user : nil
+    board = Board.create!(
+      primary_player: @current_user,
+      is_opponent_ai: params[:is_opponent_ai],
+      current_player: current_player)
 
     ActionCable.server.broadcast 'joinable_games',
       game: board,
@@ -10,8 +14,17 @@ class BoardsController < ApplicationController
   end
 
   def index
-    joinable_boards = Board.where(index_board_params)
-    render json: joinable_boards, status: :ok
+    board_params = nil
+
+    case params[:type]
+      when 'joinable'
+        board_params = joinable_board_params
+      when 'created'
+        board_params = created_board_params
+    end
+
+    joinable_boards = Board.where(board_params)
+    render json: joinable_boards, status: :ok, include: :primary_player
   end
 
   def update
@@ -39,7 +52,14 @@ class BoardsController < ApplicationController
     }
   end
 
-  def index_board_params
-    params.permit(:secondary_player, :is_opponent_ai)
+  def joinable_board_params
+    [
+      'primary_player_id != ? AND secondary_player_id IS ? AND is_opponent_ai = ?',
+      @current_user.id, nil, false
+    ]
+  end
+
+  def created_board_params
+    { primary_player_id: @current_user.id }
   end
 end

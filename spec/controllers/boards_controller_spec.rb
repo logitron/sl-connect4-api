@@ -20,7 +20,7 @@ RSpec.describe BoardsController, type: :request do
             game: an_instance_of(Board),
             is_joinable: true)
 
-        post '/boards', params: { is_opponent_ai: false }
+        post '/boards', params: { is_opponent_ai: false }, as: :json
       end
 
       it 'responds with status created' do
@@ -55,14 +55,14 @@ RSpec.describe BoardsController, type: :request do
       end
     end
 
-    context 'when user creates game against AI' do
+    context 'when user creates game against ai' do
       before do
         expect(ActionCable.server).not_to receive(:broadcast)
           .with('joinable_games',
             game: an_instance_of(Board),
             is_joinable: true)
 
-        post '/boards', params: { is_opponent_ai: true }
+        post '/boards', params: { is_opponent_ai: true }, as: :json
       end
 
       it 'responds with created board' do
@@ -71,7 +71,7 @@ RSpec.describe BoardsController, type: :request do
 
         expect(response_body['primary_player_id']).to eq(board.primary_player.id)
         expect(response_body['secondary_player_id']).to be_nil
-        expect(response_body['current_player_id']).to be_nil
+        expect(response_body['current_player_id']).to eq(board.primary_player.id)
         expect(response_body['winner_id']).to be_nil
         expect(response_body['loser_id']).to be_nil
         expect(response_body['is_opponent_ai']).to be true
@@ -91,15 +91,19 @@ RSpec.describe BoardsController, type: :request do
   end
 
   describe '#index' do
+    let(:joinable_games_count) { 7 }
+    let(:user_created_games_count) { 4 }
+
+    before do
+      FactoryBot.create_list(:board, joinable_games_count, secondary_player: nil)
+      FactoryBot.create_list(:board, user_created_games_count, primary_player: current_user)
+      FactoryBot.create_list(:board, joinable_games_count, secondary_player: nil, is_opponent_ai: true)
+      FactoryBot.create_list(:board, joinable_games_count)
+    end
+
     context 'when user requests joinable games' do
-      let(:joinable_games_count) { 7 }
-
       before do
-        FactoryBot.create_list(:board, joinable_games_count, secondary_player: nil)
-        FactoryBot.create_list(:board, Faker::Number.digit.to_i, secondary_player: nil, is_opponent_ai: true)
-        FactoryBot.create_list(:board, Faker::Number.digit.to_i)
-
-        get '/boards', params: { secondary_player: nil, is_opponent_ai: false }
+        get '/boards', params: { type: :joinable }
       end
 
       it 'returns joinable games' do
@@ -107,6 +111,22 @@ RSpec.describe BoardsController, type: :request do
         
         expect(response_body.size).to eq(joinable_games_count)
         expect(response_body.first['secondary_player_id']).to be_nil
+        expect(response_body.first['is_opponent_ai']).to be false
+
+        expect(response_body.first['primary_player']).not_to be_nil
+      end
+    end
+
+    context 'when user requests her created games' do
+      before do
+        get '/boards', params: { type: :created }
+      end
+
+      it 'returns games created by user' do
+        response_body = JSON.parse(response.body)
+
+        expect(response_body.size).to eq(user_created_games_count)
+        expect(response_body.first['primary_player_id']).to eq(current_user.id)
       end
     end
   end
