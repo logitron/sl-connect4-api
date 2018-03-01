@@ -26,7 +26,7 @@ RSpec.describe PlayGameColumn, type: :command do
       end
 
       it 'broadcasts failure to current player' do
-        expect(GamePlayChannel).to receive(:broadcast_to)
+        expect(ActionCable.server).to receive(:broadcast)
           .with(
             "board_#{board.id}",
             move_type: :invalid_move,
@@ -53,7 +53,7 @@ RSpec.describe PlayGameColumn, type: :command do
       end
 
       it 'broadcasts move to all players' do
-        expect(GamePlayChannel).to receive(:broadcast_to)
+        expect(ActionCable.server).to receive(:broadcast)
           .with(
             "board_#{board.id}",
             move_type: :valid_move,
@@ -81,7 +81,7 @@ RSpec.describe PlayGameColumn, type: :command do
       end
 
       it 'broadcasts winning move to all players' do
-        expect(GamePlayChannel).to receive(:broadcast_to)
+        expect(ActionCable.server).to receive(:broadcast)
           .with(
             "board_#{board.id}",
             move_type: :winning_move,
@@ -149,7 +149,7 @@ RSpec.describe PlayGameColumn, type: :command do
       end
 
       it 'broadcasts tie to all players' do
-        expect(GamePlayChannel).to receive(:broadcast_to)
+        expect(ActionCable.server).to receive(:broadcast)
           .with(
             "board_#{board.id}",
             move_type: :tie_move,

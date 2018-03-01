@@ -40,7 +40,7 @@ class PlayGameColumn
   end
 
   def broadcast_move move_type
-    GamePlayChannel.broadcast_to(
+    ActionCable.server.broadcast(
         "board_#{@board.id}",
         move_type: move_type,
         played_by: @board.current_player,
