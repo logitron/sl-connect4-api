@@ -2,9 +2,8 @@ require 'rails_helper'
 
 RSpec.describe AiService, type: :service do
   let!(:board) { FactoryBot.create(:board, move_count: 0) }
-  let(:board_service) { BoardService.new board }
 
-  subject { described_class.new board_service }
+  subject { described_class.new board }
 
   describe '#get_best_move' do
     context 'when opponent can win next move' do
@@ -31,7 +30,30 @@ RSpec.describe AiService, type: :service do
       end
     end
 
-    context 'when AI can win next move' do
+    context 'when opponent can win next move' do
+      before do
+        board.move_count = 5
+        board.column_heights[0] = 3
+        board.column_heights[3] = 1
+        board.column_heights[4] = 1
+        board.board = [
+          [1, 1, 1, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [2, 0, 0, 0, 0, 0],
+          [2, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0]
+        ]
+      end
+
+      it 'returns column index of best move' do
+        column_index = subject.get_best_move
+        expect(column_index).to eq(0)
+      end
+    end
+
+    context 'when ai can win next move' do
       before do
         board.move_count = 8
         board.column_heights[0] = 2
@@ -45,6 +67,27 @@ RSpec.describe AiService, type: :service do
           [0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0],
           [1, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0]
+        ]
+      end
+
+      it 'returns column index of best move' do
+        column_index = subject.get_best_move
+        expect(column_index).to eq(3)
+      end
+    end
+
+    context 'when game has just started' do
+      before do
+        board.move_count = 1
+        board.column_heights[0] = 1
+        board.board = [
+          [1, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0]
         ]
       end
